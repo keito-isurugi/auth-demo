@@ -1,9 +1,10 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
-    "strings"
+	"encoding/base64"
+	"fmt"
+	"net/http"
+	"strings"
 )
 
 const (
@@ -22,16 +23,22 @@ func basicAuth(next http.HandlerFunc) http.HandlerFunc {
             return
         }
 
-        // "Basic " プレフィックスを取り除き、ユーザー名とパスワード部分を取得
+        // "Basic " プレフィックスを取り除く
         authHeaderParts := strings.SplitN(authHeader, " ", 2)
         if len(authHeaderParts) != 2 || authHeaderParts[0] != "Basic" {
             http.Error(w, "Unauthorized", http.StatusUnauthorized)
             return
         }
 
-        // ユーザー名とパスワードは、"username:password"形式で来ると仮定
-        credentials := authHeaderParts[1]
-        pair := strings.SplitN(credentials, ":", 2)
+        // Base64デコード
+        decoded, err := base64.StdEncoding.DecodeString(authHeaderParts[1])
+        if err != nil {
+            http.Error(w, "Unauthorized", http.StatusUnauthorized)
+            return
+        }
+
+        // ユーザー名とパスワードのチェック
+        pair := strings.SplitN(string(decoded), ":", 2)
         if len(pair) != 2 || pair[0] != username || pair[1] != password {
             http.Error(w, "Unauthorized", http.StatusUnauthorized)
             return
