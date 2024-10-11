@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+    "github.com/keito-isurugi/security-demo/view"
 )
 
 const (
@@ -53,8 +54,15 @@ func secret(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintln(w, "You have accessed the secret content!")
 }
 
+func finalHandler(w http.ResponseWriter, r *http.Request) {
+    w.Write([]byte("This is the next handler"))
+}
+
 func main() {
     http.HandleFunc("/secret", basicAuth(secret))
+    http.HandleFunc("/form", view.FormHandler)
+
+
     fmt.Println("Server is running on http://localhost:8080")
     http.ListenAndServe(":8080", nil)
 }
