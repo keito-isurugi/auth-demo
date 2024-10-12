@@ -7,7 +7,7 @@ import (
 
 func FormHandler(w http.ResponseWriter, r *http.Request) {
     tpl := template.HTML(`
-        <form method="post" action="http://localhost:8080/form/id_pass_auth">
+        <form method="post" action="http://localhost:8080/id_pass_auth">
             <label for="id">ID</label>
             <input type="text" name="id">
             <br>

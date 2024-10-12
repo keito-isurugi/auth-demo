@@ -14,8 +14,8 @@ func secret(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     http.HandleFunc("/secret", middleware.BasicAuth(secret))
-    http.HandleFunc("/form", view.FormHandler)
-    http.HandleFunc("/form/id_pass_auth", middleware.Post(handler.IdPassAuthHandler))
+    http.HandleFunc("/login", view.FormHandler)
+    http.HandleFunc("/id_pass_auth", middleware.Post(handler.IdPassAuthHandler))
 
 
     fmt.Println("Server is running on http://localhost:8080")
