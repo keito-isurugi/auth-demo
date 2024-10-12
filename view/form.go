@@ -6,8 +6,17 @@ import (
 )
 
 func FormHandler(w http.ResponseWriter, r *http.Request) {
-    tpl := `<p>{{ . }}</p>`
-    data := "Hello"
-    t := template.Must(template.New("a").Parse(tpl))
-    t.Execute(w, data)
+    tpl := template.HTML(`
+        <form method="post" action="http://localhost:8080/form/id_pass_auth">
+            <label for="id">ID</label>
+            <input type="text" name="id">
+            <br>
+            <label for="password">Password</label>
+            <input type="password" name="password">
+            <br>
+            <input type="submit" label="submit">
+        </form>
+    `)
+    t := template.Must(template.New("a").Parse(`<div>{{ . }}</div>`))
+    t.Execute(w, tpl)
 }
