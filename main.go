@@ -27,8 +27,10 @@ func main() {
 
 	http.HandleFunc("/users", handler.ListUsers(db.DB))
 
-	http.HandleFunc("/request_password_reset", handler.RequestPasswordReset(db.DB))
+	http.HandleFunc("/view/request_password_reset", view.ViewRequestPasswordResetHandler)
 	http.HandleFunc("/view/password_reset", view.FormHandler)
+	http.HandleFunc("/request_password_reset", middleware.Post(handler.RequestPasswordReset(db.DB)))
+	
 
 	fmt.Println("Server is running on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
