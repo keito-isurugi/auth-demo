@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   app:
-    container_name: security-demo
+    container_name: auth-demo-app
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,9 +12,9 @@ services:
     env_file:
       - .env
     networks:
-      - security-demo-network
-  db:
-    container_name: security-demo-db
+      - auth-demo-network
+  db: 
+    container_name: auth-demo-db
     image: postgres:14.5
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
@@ -26,9 +26,9 @@ services:
       - ./persist/postgres:/var/lib/postgresql/data
       - ./DDL:/docker-entrypoint-initdb.d
     networks:
-      - security-demo-network
+      - auth-demo-network
   pgadmin:
-    container_name: security-demo-pgadmin
+    container_name: auth-demo-pgadmin
     image: dpage/pgadmin4
     ports:
       - 5050:80
@@ -40,7 +40,15 @@ services:
     depends_on:
       - db
     networks:
-      - security-demo-network
+      - auth-demo-network
+  mailhog:
+    image: mailhog/mailhog
+    container_name: auth-demo-mailhog
+    ports:
+      - ${MAIL_SERVER_PORT}:${MAIL_SERVER_PORT}
+      - ${MAIL_UI_PORT}:${MAIL_UI_PORT}
+    networks:
+      - auth-demo-network
 networks:
-  security-demo-network:
+  auth-demo-network:
     driver: bridge
