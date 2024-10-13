@@ -61,7 +61,7 @@ func RequestPasswordReset(db *gorm.DB) http.HandlerFunc {
 		token := uuid.New()
 		expiresAt := time.Now().Add(time.Hour * 1)
 
-		// DBにuser_id, トークン、有効期限をアップさーと
+		// DBにuser_id, トークン、有効期限をアップサート
 		prt := &PasswordResetToken{
 			UserID: user.ID,
 			Token: token,
@@ -75,7 +75,7 @@ func RequestPasswordReset(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// メール送信
-		if err := sendResetEmail(user.Email); err != nil {
+		if err := sendResetEmail(user.Email, token); err != nil {
 			w.Write([]byte("メールの送信に失敗しました。"))
 			return
 		}
@@ -83,15 +83,14 @@ func RequestPasswordReset(db *gorm.DB) http.HandlerFunc {
 	}
 }
 
-func sendResetEmail(token string) error {
+func sendResetEmail(toEmail string, token uuid.UUID) error {
 	from := "form@example.com"
-	to := "to@example.com"
-	// password := "your-email-password" // 開発では使わない
+	to := toEmail
 	smtpHost := "mailhog"
 	smtpPort := "1025"
 
 	subject := "パスワードリセット"
-	body := fmt.Sprintf("以下のリンクをクリックしてパスワードをリセットしてください:\nhttp://localhost:8080/view/login?token=%s", token)
+	body := fmt.Sprintf("以下のリンクをクリックしてパスワードをリセットしてください:\nhttp://localhost:8080/view/password_reset?token=%s", token)
 
 	msg := "From: " + from + "\n" +
 		"To: " + to + "\n" +
@@ -105,4 +104,41 @@ func sendResetEmail(token string) error {
 	}
 
 	return err
+}
+
+func PasswordReset(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// // user_idに紐づくユーザー取得(送信用メールアドレスに必要)
+		// var user User
+		// userID := r.FormValue("user_id")
+		// if err := db.Where("id", userID).First(&user).Error; err != nil {
+		// 	fmt.Println(err)
+		// 	http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
+		// 	return
+		// }
+
+		// // トークン生成、有効期限生成
+		// token := uuid.New()
+		// expiresAt := time.Now().Add(time.Hour * 1)
+
+		// // DBにuser_id, トークン、有効期限をアップサート
+		// prt := &PasswordResetToken{
+		// 	UserID: user.ID,
+		// 	Token: token,
+		// 	ExpiresAt: expiresAt,
+		// }
+		// if err := db.Clauses(clause.OnConflict{
+		// 	Columns:   []clause.Column{{Name: "user_id"}},
+		// 	DoUpdates: clause.AssignmentColumns([]string{"token", "expires_at"}),
+		// }).Create(&prt).Error; err != nil {
+		// 	http.Error(w, "Failed to retrieve users", http.StatusInternalServerError)
+		// }
+
+		// // メール送信
+		// if err := sendResetEmail(user.Email, token); err != nil {
+		// 	w.Write([]byte("メールの送信に失敗しました。"))
+		// 	return
+		// }
+		w.Write([]byte("パスワードをリセットしました。"))
+	}
 }
