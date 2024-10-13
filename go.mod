@@ -1,4 +1,4 @@
-module github.com/keito-isurugi/security-demo
+module github.com/keito-isurugi/auth-demo
 
 go 1.22.0
 
