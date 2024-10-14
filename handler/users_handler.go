@@ -8,17 +8,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/keito-isurugi/auth-demo/helper"
+	"github.com/keito-isurugi/auth-demo/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
-
-type User struct {
-	ID       uint   `gorm:"primaryKey"`
-	Name     string `gorm:"column:name"`
-	Email    string `gorm:"column:email"`
-	Password string `gorm:"column:password"`
-}
 
 type PasswordResetToken struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
@@ -30,7 +24,7 @@ type PasswordResetToken struct {
 
 func ListUsers(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var users []User
+		var users []model.User
 
 		if err := db.Find(&users).Error; err != nil {
 			fmt.Println(err)
@@ -50,7 +44,7 @@ func ListUsers(db *gorm.DB) http.HandlerFunc {
 func RequestPasswordReset(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// user_idに紐づくユーザー取得(送信用メールアドレスに必要)
-		var user User
+		var user model.User
 		userID := r.FormValue("user_id")
 		if err := db.Where("id", userID).First(&user).Error; err != nil {
 			fmt.Println(err)
@@ -127,11 +121,14 @@ func PasswordReset(db *gorm.DB) http.HandlerFunc {
 		}
 
 		// パスワードをリセットする
-		hash, _ := HashPassword(r.FormValue("new_password"))
-		user := &User{
+		hash, _ := helper.HashPassword(r.FormValue("new_password"))
+		user := &model.User{
 			ID:       prt.ID,
 			Password: hash,
 		}
+		fmt.Println("===========================")
+		fmt.Println(hash)
+		fmt.Println(user.Password)
 		if err := db.Updates(user).Error; err != nil {
 			fmt.Println(err)
 			http.Error(w, "Failed to update user", http.StatusInternalServerError)
@@ -139,15 +136,4 @@ func PasswordReset(db *gorm.DB) http.HandlerFunc {
 
 		w.Write([]byte("パスワードをリセットしました。"))
 	}
-}
-
-// パスワードをハッシュ化する関数
-func HashPassword(password string) (string, error) {
-	// bcrypt.GenerateFromPasswordはハッシュ化されたパスワードを返す
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	// ハッシュを文字列に変換して返す
-	return string(hash), nil
 }
