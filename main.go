@@ -23,7 +23,7 @@ func main() {
 
 	http.HandleFunc("/secret", middleware.BasicAuth(secret))
 	http.HandleFunc("/view/login", view.FormHandler)
-	http.HandleFunc("/id_pass_auth", middleware.Post(handler.IdPassAuthHandler))
+	http.HandleFunc("/id_pass_auth", middleware.Post(handler.IdPassAuthHandler(db.DB)))
 
 	http.HandleFunc("/users", handler.ListUsers(db.DB))
 

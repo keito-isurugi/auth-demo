@@ -1,26 +1,53 @@
 package handler
 
 import (
-	"crypto/md5"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/keito-isurugi/auth-demo/helper"
+	"github.com/keito-isurugi/auth-demo/infra"
+	"gorm.io/gorm"
 )
 
-const (
-	ID       = "id"
-	PassWord = "1a1dc91c907325c69271ddf0c944bc72" // "pass"をmd5でハッシュ化した値
-)
+func IdPassAuthHandler(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, _ := strconv.Atoi(r.FormValue("id"))
+		password, _ := helper.HashPassword(r.FormValue("password"))
+		
+		user, err := infra.GetUser(db, id)
+		if err != nil {
+			http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
+			return
+		}
+		fmt.Println("===========================")
+		fmt.Println(password)
+		fmt.Println(user.Password)
 
-func IdPassAuthHandler(w http.ResponseWriter, r *http.Request) {
-	// フォームデータの取得（例：id, password）
-	id := r.FormValue("id")
-	password := r.FormValue("password")
+		if helper.CheckPasswordHash(user.Password, password) {
+			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			return
+		}
 
-	passHash := md5.Sum([]byte(password))
+		// 認証成功時にセッションIDを生成してクッキーに保存
+		sessionID := uuid.New()
+		expiration := time.Now().Add(1 * time.Hour)
+		
+		if err := infra.SaveSession(db, id, sessionID, expiration); err != nil {
+			http.Error(w, "Failed to retrieve session", http.StatusInternalServerError)
+			return
+		}
 
-	if ID != id || PassWord != fmt.Sprintf("%x", passHash) {
-		w.Write([]byte("Error Authentication failed"))
+		// クッキーにセッションIDを保存
+		cookie := &http.Cookie{
+			Name:    "session_token",
+			Value:   sessionID.String(),
+			Expires: expiration,
+		}
+		http.SetCookie(w, cookie)
+
+		w.Write([]byte("Authentication succeeded"))
 	}
-
-	w.Write([]byte("Authentication succeeded"))
 }
