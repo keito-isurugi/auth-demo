@@ -12,7 +12,7 @@ func FormHandler(w http.ResponseWriter, r *http.Request) {
             <input type="text" name="id">
             <br>
             <label for="password">Password</label>
-            <input type="password" name="password">
+            <input type="test" name="password">
             <br>
             <input type="submit" label="submit">
         </form>

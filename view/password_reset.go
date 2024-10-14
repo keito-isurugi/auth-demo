@@ -6,6 +6,7 @@ import (
 )
 
 func ViewPasswordResetHandler(w http.ResponseWriter, r *http.Request) {
+    // クエリパラメータを取得
 	query := r.URL.Query()
 	token := query.Get("token")
 
@@ -28,6 +29,7 @@ func ViewPasswordResetHandler(w http.ResponseWriter, r *http.Request) {
         </form>
     `)
 
+    	// データをテンプレートに渡す
 	data := struct {
 		Token string
 	}{
