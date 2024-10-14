@@ -4,18 +4,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/keito-isurugi/auth-demo/model"
 	"gorm.io/gorm"
 )
 
-type Session struct {
-    UserID    int       `json:"user_id"`
-    SessionID uuid.UUID `json:"session_id"`
-    ExpiresAt time.Time `json:"expires_at"`
-    CreatedAt time.Time `json:"created_at"`
-}
-
 func SaveSession(db *gorm.DB, id int, sessionID uuid.UUID, expiresAt time.Time) error {
-	session := Session{
+	session := model.Session{
 		UserID: id,
 		SessionID: sessionID,
 		ExpiresAt: expiresAt,
@@ -25,5 +19,22 @@ func SaveSession(db *gorm.DB, id int, sessionID uuid.UUID, expiresAt time.Time) 
 		return err
 	}
 
+	return nil
+}
+
+func GetSession(db *gorm.DB, sessionID uuid.UUID) (model.Session, error) {
+	var sessions model.Session
+
+	if err := db.Where("session_id", sessionID).First(&sessions).Error; err != nil {
+		return model.Session{}, err
+	}
+
+	return sessions, nil
+}
+
+func DeleteSession(db *gorm.DB, sessionID uuid.UUID) error {
+	if err := db.Where("session_id", sessionID).Delete(&model.Session{}).Error; err != nil {
+		return err
+	}
 	return nil
 }

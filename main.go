@@ -21,15 +21,31 @@ func main() {
 		log.Fatal("Failed to connect to the database:", err)
 	}
 
-	http.HandleFunc("/secret", middleware.BasicAuth(secret))
-	http.HandleFunc("/view/login", view.FormHandler)
-	http.HandleFunc("/id_pass_auth", middleware.Post(handler.IdPassAuthHandler(db.DB)))
-
+	// ユーザー一覧
 	http.HandleFunc("/users", handler.ListUsers(db.DB))
 
+	// Basic認証
+	http.HandleFunc("/secret", middleware.BasicAuth(secret))
+
+	/*
+	* セッション方式
+	*/
+	// ログインページ
+	http.HandleFunc("/view/login", view.SessionLoginPage)
+	// 認可が必要なページ
+	http.HandleFunc("/view/session_auth_page", view.SessionAuthPage(db.DB))
+	// パスワードリセットをリクエストするページ
 	http.HandleFunc("/view/request_password_reset", view.ViewRequestPasswordResetHandler)
+	// パスワードリセットページ
 	http.HandleFunc("/view/password_reset", view.ViewPasswordResetHandler)
+
+	// ログイン処理
+	http.HandleFunc("/session_login", middleware.Post(handler.SessionLoginHandler(db.DB)))
+	// ログアウト処理
+	http.HandleFunc("/session_logout", handler.SessionLogoutHnadler(db.DB))
+	// パスワードリセットメール送信処理
 	http.HandleFunc("/request_password_reset", middleware.Post(handler.RequestPasswordReset(db.DB)))
+	// パスワードリセット処理
 	http.HandleFunc("/password_reset", middleware.Post(handler.PasswordReset(db.DB)))
 
 	fmt.Println("Server is running on http://localhost:8080")

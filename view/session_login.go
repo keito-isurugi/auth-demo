@@ -1,13 +1,13 @@
 package view
 
 import (
-    "html/template"
+	"html/template"
 	"net/http"
 )
 
-func FormHandler(w http.ResponseWriter, r *http.Request) {
-    tpl := template.HTML(`
-        <form method="post" action="http://localhost:8080/id_pass_auth">
+func SessionLoginPage(w http.ResponseWriter, r *http.Request) {
+	tpl := template.HTML(`
+        <form method="post" action="http://localhost:8080/session_login">
             <label for="id">ID</label>
             <input type="text" name="id">
             <br>
@@ -17,6 +17,6 @@ func FormHandler(w http.ResponseWriter, r *http.Request) {
             <input type="submit" label="submit">
         </form>
     `)
-    t := template.Must(template.New("a").Parse(`<div>{{ . }}</div>`))
-    t.Execute(w, tpl)
+	t := template.Must(template.New("a").Parse(`<div>{{ . }}</div>`))
+	t.Execute(w, tpl)
 }

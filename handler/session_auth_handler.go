@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func IdPassAuthHandler(db *gorm.DB) http.HandlerFunc {
+func SessionLoginHandler(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, _ := strconv.Atoi(r.FormValue("id"))
 		password, _ := helper.HashPassword(r.FormValue("password"))
@@ -22,9 +22,6 @@ func IdPassAuthHandler(db *gorm.DB) http.HandlerFunc {
 			http.Error(w, "Failed to retrieve user", http.StatusInternalServerError)
 			return
 		}
-		fmt.Println("===========================")
-		fmt.Println(password)
-		fmt.Println(user.Password)
 
 		if helper.CheckPasswordHash(user.Password, password) {
 			http.Error(w, "Authentication failed", http.StatusUnauthorized)
@@ -49,5 +46,36 @@ func IdPassAuthHandler(db *gorm.DB) http.HandlerFunc {
 		http.SetCookie(w, cookie)
 
 		w.Write([]byte("Authentication succeeded"))
+	}
+}
+
+func SessionLogoutHnadler(db *gorm.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("session_token")
+		if err != nil {
+			http.Error(w, "Not authenticated valid cookie", http.StatusUnauthorized)
+			return
+		}
+
+		// セッションIDを削除
+		sessionID, _ := uuid.Parse(cookie.Value)
+		err = infra.DeleteSession(db, sessionID)
+		fmt.Println("============")
+		fmt.Println(sessionID)
+		fmt.Println(err)
+		if err != nil {
+			http.Error(w, "Failed to retrieve session", http.StatusInternalServerError)
+			return
+		}
+
+		// クッキーを削除
+		http.SetCookie(w, &http.Cookie{
+			Name:   "session_token",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1, // クッキーを削除
+		})
+
+		w.Write([]byte("ログアウトしました"))
 	}
 }
