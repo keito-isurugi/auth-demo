@@ -48,6 +48,12 @@ func main() {
 	// パスワードリセット処理
 	http.HandleFunc("/password_reset", middleware.Post(handler.PasswordReset(db.DB)))
 
+
+	// JWT生成
+	http.HandleFunc("/get_jwt", handler.GetToken)
+	http.HandleFunc("/valid_jwt", handler.ValidToken)
+
+
 	fmt.Println("Server is running on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 }
