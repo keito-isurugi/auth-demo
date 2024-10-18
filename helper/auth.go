@@ -60,6 +60,7 @@ func ValidateJWT(tokenString string) (*jwt.Token, error) {
 	})
 
 	if err != nil {
+		fmt.Println(token, err)
 		return nil, err
 	}
 

@@ -20,7 +20,7 @@ func GetToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func ValidToken(w http.ResponseWriter, r *http.Request) {
-	jwt := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjkwODQzNTIsInN1YiI6IjEyMzQifQ._T_IcK0dlgAs1adMrBTb7PyIFzPmcVSCG-wdYwKUyXA"
+	jwt := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjkyNjIyMTAsInN1YiI6IjEyMzQifQ.XRANbDR5Ow12vKXDC62YPSb9BC1cRd7SBzHWD5ciuAk"
 	token ,err := helper.ValidateJWT(jwt)
 	if err != nil {
 		fmt.Println(err)
