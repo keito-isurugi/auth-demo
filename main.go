@@ -53,7 +53,11 @@ func main() {
 	http.HandleFunc("/get_jwt", handler.GetToken)
 	http.HandleFunc("/valid_jwt", handler.ValidToken)
 
-
+	// ログインページ
+	http.HandleFunc("/view/jwt_login", view.JWTLoginPage)
+	// 認可が必要なページ
+	http.HandleFunc("/view/jwt_auth_page", middleware.JWTAuth(view.JWTAuthPage(db.DB)))
+	
 	fmt.Println("Server is running on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 }
