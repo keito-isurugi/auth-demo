@@ -22,10 +22,10 @@ func SaveRefreshTokens(db *gorm.DB, id int, token uuid.UUID, expiresAt time.Time
 	return nil
 }
 
-func GetRefreshToken(db *gorm.DB, token uuid.UUID) (model.RefreshToken, error) {
+func GetRefreshToken(db *gorm.DB, userID int) (model.RefreshToken, error) {
 	var rt model.RefreshToken
 
-	if err := db.Where("refresh_token", token).First(&rt).Error; err != nil {
+	if err := db.Where("user_id", userID).First(&rt).Error; err != nil {
 		return model.RefreshToken{}, err
 	}
 
