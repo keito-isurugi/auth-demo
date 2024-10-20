@@ -49,15 +49,22 @@ func main() {
 	http.HandleFunc("/password_reset", middleware.Post(handler.PasswordReset(db.DB)))
 
 
-	// JWT生成
+	/*
+	* トークン方式
+	*/
+	// jwt生成
 	http.HandleFunc("/get_jwt", handler.GetToken)
 	http.HandleFunc("/valid_jwt", handler.ValidToken)
 
 	// ログインページ
 	http.HandleFunc("/view/jwt_login", view.JWTLoginPage)
 	// 認可が必要なページ
-	http.HandleFunc("/view/jwt_auth_page", middleware.JWTAuth(view.JWTAuthPage(db.DB)))
+	http.HandleFunc("/view/jwt_auth_page", middleware.JWTAuth(view.JWTAuthPage(db.DB), db.DB))
 	
+	// ログイン処理
+	http.HandleFunc("/jwt_login", middleware.Post(handler.JWTLogin(db.DB)))
+
+
 	fmt.Println("Server is running on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 }
