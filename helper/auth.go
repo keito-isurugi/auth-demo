@@ -31,10 +31,11 @@ var secretKey = []byte("mysecret")
 
 // トークン生成関数
 func GenerateJWT(userID string) (string, error) {
+	fmt.Println("userID", userID)
 	// トークンのペイロード（クレーム）
 	claims := jwt.MapClaims{
 		"sub": userID,                           // ユーザーID
-		"exp": time.Now().Add(time.Hour).Unix(), // 有効期限（1時間）
+		"exp": time.Now().Add(time.Minute).Unix(), // 有効期限
 	}
 
 	// トークン生成
@@ -59,8 +60,13 @@ func ValidateJWT(tokenString string) (*jwt.Token, error) {
 		return secretKey, nil
 	})
 
+	// エラーがある場合、期限切れエラーかどうかを確認
 	if err != nil {
-		fmt.Println(token, err)
+		// エラーメッセージが期限切れの場合
+		if err.(*jwt.ValidationError).Errors == jwt.ValidationErrorExpired {
+			return token, fmt.Errorf("token is expired")
+		}
+		// それ以外のエラーはそのまま返す
 		return nil, err
 	}
 
