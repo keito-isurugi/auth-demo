@@ -23,6 +23,8 @@ func main() {
 
 	// ユーザー一覧
 	http.HandleFunc("/users", handler.ListUsers(db.DB))
+	// RSAでも
+	http.HandleFunc("/rsa", handler.RSADemo)
 
 	// Basic認証
 	http.HandleFunc("/secret", middleware.BasicAuth(secret))
