@@ -66,6 +66,10 @@ func main() {
 	// ログイン処理
 	http.HandleFunc("/jwt_login", middleware.Post(handler.JWTLogin(db.DB)))
 
+	/*
+	* OAuth2.0
+	*/
+	http.HandleFunc("/oauth/authorization", middleware.GetWithResJson(handler.GetAuthCode))
 
 	fmt.Println("Server is running on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
